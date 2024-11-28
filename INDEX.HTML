@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search by Range</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: century schoolbook, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: url('2k.jpeg') no-repeat center center fixed;
+            color: black;
+        }
+
+        .container {
+            padding: 40px;
+            border: 3px solid blue; /* Red border for contrast */
+            border-radius: 10px;
+            background-color: white; /* white container background */
+            max-width: 900px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: white; /* White text for readability */
+        }
+
+        h1 {
+            color: blue; /* Red heading for prominence */
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .range-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .range-box {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border: 3px solid blue; /* blue border for clarity */
+            border-radius: 10px;
+            width: 48%;
+            font-size: 1.2em;
+            background-color: red; /* red background for dropdowns */
+        }
+
+        .range-box label {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: White; /* black label for focus */
+        }
+
+        select {
+            padding: 15px;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border: 2px solid red;
+            border-radius: 5px;
+            background-color:white; /* White dropdown background */
+            color: black; /* Black text */
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.5em;
+            background-color: blue; /* blue button background */
+            color: white; /* White text */
+            border: 3px solid red; /* red border */
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: white;
+            color: red;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 1.2em;
+            display: none;
+        }
+
+        .report-list {
+            margin-top: 30px;
+            display: none;
+            font-size: 1.2em;
+            text-align: left; /* Aligning links to the left */
+        }
+
+        .report-item {
+            margin-bottom: 15px;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue; /* blue links for readability */
+            font-size: 1.1em;
+        }
+
+        a:hover {
+            text-decoration: underline;
+            color: red; /* Red highlight on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cash Waterfall Mechanism Validation Reports</h1>
+        <div class="range-section">
+            <!-- From Section -->
+            <div class="range-box">
+                <label style="text-align: left; display: block;">FROM</label>
+                <select id="start-year"></select>
+                <select id="start-month"></select>
+            </div>
+            <!-- To Section -->
+            <div class="range-box">
+                <label style="text-align: left; display: block;">TO</label>
+                <select id="end-year"></select>
+                <select id="end-month"></select>
+            </div>
+        </div>
+        <button onclick="searchReports()">Search</button>
+        <div class="error-message" id="error-message"></div>
+        <div class="report-list" id="report-list"></div>
+    </div>
+
+    <script>
+        // Static reports data
+        const reports = {
+               "202409": [
+                { title: "Validation Report for September 2024", url: "https://www.purc.com.gh/attachment/490018-20240912100927.pdf"}
+            ],
+            "202408": [
+                { title: "Validation Report for August 2024", url: "https://www.purc.com.gh/attachment/340423-20240812100953.pdf" }
+            ],
+
+              "202407": [
+                { title: "Validation Report for July 2024", url: "https://www.purc.com.gh/attachment/421992-20240702010727.pdf" }
+            ],
+
+            "202406": [
+                { title: "Validation Report for June 2024", url: "https://www.purc.com.gh/attachment/490018-20240912100927.pdf" }
+            ],
+
+            "202405": [
+                { title: "Validation Report for May 2024", url: "https://www.purc.com.gh/attachment/340423-20240912100953.pdf" }
+            ],
+
+            "202404": [
+                { title: "Validation Report for April 2024", url: "https://www.purc.com.gh/attachment/421992-20240702010727.pdf" }
+            ],
+
+            "202403": [
+                { title: "Validation Report for March 2024", url: "https://www.purc.com.gh/attachment/28072-20240528120524.pdf" }
+            ],
+ 
+            "202402": [
+                { title: "Validation Report for Febuary 2024", url: "https://www.purc.com.gh/attachment/977865-20240418100455.pdf" }
+            ],
+            "202401": [
+                { title: "Validation Report for January 2024", url: "https://www.purc.com.gh/attachment/880899-20240309080337.pdf" }
+            ],
+            "202312": [
+                { title: "Validation Report for December 2023", url: "https://www.purc.com.gh/attachment/485159-20240124070114.pdf" }
+            ],"202311": [
+                { title: "Validation Report for November 2023", url: "https://www.purc.com.gh/attachment/854471-20240123120122.pdf" }
+            ],
+            "202310": [
+                { title: "Validation Report for October 2023", url: "https://www.purc.com.gh/attachment/306406-20240124070142.pdf" }
+            ],
+            "202309": [
+                { title: "Validation Report for September 2023", url: "https://www.purc.com.gh/attachment/593654-20231023111027.pdf" }
+            ],
+            "202307": [
+                { title: "Validation Report for August 2023", url: "https://www.purc.com.gh/attachment/617670-20231010111021.pdf" }
+            ],
+        };
+
+
+
+        // Generate years and months
+        function populateYearMonth() {
+            const currentYear = new Date().getFullYear();
+            const startYearSelect = document.getElementById('start-year');
+            const endYearSelect = document.getElementById('end-year');
+            const startMonthSelect = document.getElementById('start-month');
+            const endMonthSelect = document.getElementById('end-month');
+
+            const months = [
+                "January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+
+            // Populate year dropdowns
+            for (let year = currentYear; year >= currentYear - 1; year--) {
+                const yearOption = document.createElement('option');
+                yearOption.value = year;
+                yearOption.textContent = year;
+                startYearSelect.appendChild(yearOption.cloneNode(true));
+                endYearSelect.appendChild(yearOption);
+            }
+
+            // Populate month dropdowns
+            months.forEach((month, index) => {
+                const monthOption = document.createElement('option');
+                monthOption.value = String(index + 1).padStart(2, '0');
+                monthOption.textContent = month;
+                startMonthSelect.appendChild(monthOption.cloneNode(true));
+                endMonthSelect.appendChild(monthOption);
+            });
+        }
+
+        // Search reports
+        function searchReports() {
+            const startYear = document.getElementById('start-year').value;
+            const startMonth = document.getElementById('start-month').value;
+            const endYear = document.getElementById('end-year').value;
+            const endMonth = document.getElementById('end-month').value;
+            const startDate = `${startYear}${startMonth}`;
+            const endDate = `${endYear}${endMonth}`;
+            const reportList = document.getElementById('report-list');
+            const errorMessage = document.getElementById('error-message');
+
+            // Clear results and error
+            reportList.innerHTML = '';
+            reportList.style.display = 'none';
+            errorMessage.style.display = 'none';
+
+            // Validate date range
+            if (startDate > endDate) {
+                errorMessage.textContent = "Start date cannot be after end date.";
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Filter reports
+            const matchingReports = Object.entries(reports)
+                .filter(([date]) => date >= startDate && date <= endDate)
+                .flatMap(([_, reportArray]) => reportArray);
+
+            if (matchingReports.length > 0) {
+                matchingReports.forEach(report => {
+                    const item = document.createElement('div');
+                    item.className = 'report-item';
+                    item.innerHTML = `<a href="${report.url}" target="_blank">${report.title}</a>`;
+                    reportList.appendChild(item);
+                });
+                reportList.style.display = 'block';
+            } else {
+                errorMessage.textContent = "No reports found in the selected range.";
+                errorMessage.style.display = 'block';
+            }
+        }
+
+        // Initialize dropdowns on page load
+        window.onload = populateYearMonth;
+    </script>
+</body>
+</html>
